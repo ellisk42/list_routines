@@ -1,0 +1,134 @@
+* List Manipulations
+
+This project serves as a repository for problems involving list manipulation. These problems could be as simple as defining ~car~, ~cdr~, and ~cons~, or more complex, like the following:
+
+#+BEGIN_EXAMPLE
+(f (list 1 1 2 3 1 2)) = 2
+(f (list 2 0 1 5 5 3)) = 0
+(f (list 9 7 1 19 4))  = 1
+(f (list 5 5 5 3))     = 2
+#+END_EXAMPLE
+
+What is ~f~?
+
+It also includes a list of related projects for automatically solving these and related problems using various forms of artificial intelligence and machine learning, primarily from the domains of program synthesis and deep learning.
+
+** Organization
+
+- ~README.org~ (this file) describes the project and links to related projects
+- ~domains/~ contains files of individual problem.
+
+** Specifying Problems
+
+The problem specification syntax is from the [[http://github.com/piantado/churiso/][ChurIso]] system for program induction and is as follows:
+
+*** Training Data
+
+Data should be provided in the form of input/output examples, each of which should be specified as a series of equational patterns.
+
+Each observation consists of a left-hand-side (lhs), right-hand-side (rhs), and some relational operator. The operators can specify normal form equality (~=~), normal form inequality (~!=~), and trace equality (~\~=~). The lhs and rhs should be valid Scheme s-expressions, though none of the symbols involved need necessarily exist in any current Scheme implementation. Consider them uninterpreted symbols.
+
+#+BEGIN_EXAMPLE
+((and true) (true))  = true
+((and true) (true)) != false
+(f (Y f)) ~= (Y f)
+#+END_EXAMPLE
+
+*** Test Cases
+
+Any line starting with ~show~ will be treated as specifying a pattern to be used in testing. These patterns can be equational, providing input and output data, or non-equational, providing input only.
+
+#+BEGIN_EXAMPLE
+show (or true (not (and true true)))
+#+END_EXAMPLE
+
+*** Comments
+
+Any line starting with ~#~ will be treated as a single-line comment.
+
+#+BEGIN_EXAMPLE
+# This is a comment.
+#+END_EXAMPLE
+
+*** Definitions
+
+Any symbol can be associated with an interpretation using the following syntax:
+
+~<symbol> := <defn>~
+
+~<symbol>~ should be a single Scheme-compatible symbol, while ~<defn>~ can be an arbitrary Scheme S-expression. Please mark in the comments what dialect, libraries, or functions are required to interpret the definition.
+
+#+BEGIN_EXAMPLE
+true = (K K)
+#+END_EXAMPLE
+
+*** Variables
+
+Any line starting with ~variable~ will be treated as providing a list of symbols which ought to be treated as variables rather than as symbols to be defined. Multiple such lists can be defined in each problem file. /Variables should be specified as single characters!/
+
+#+BEGIN_EXAMPLE
+variable x y z
+#+END_EXAMPLE
+
+*** Uniqueness
+
+Any line starting with ~unique~ will be treated as providing a list of symbols which cannot share identical definitions. Each must be unique from the others. Multiple such lists can be defined in each problem file, though the uniqueness constraints are confined to each list. For example, consider the following two lines:
+
+#+BEGIN_EXAMPLE
+unique car cdr cons
+unique fst snd pair 
+#+END_EXAMPLE
+
+Here, we say that ~car~ and ~cdr~ cannot share a definition, nor can ~fst~ and ~snd~, but ~car~ and ~fst~ could (as could ~car~ and ~snd~ or ~car~ and ~pair~).
+
+** List Manipulation Domains
+
+The following list of domains contain problems commonly solved by list manipulation. The list is unordered and simply serves to help inspire and organize the collection of list manipulation problems.
+
+- basic list functions (car, cdr, cons, cons*, ...)
+- data structures
+  - lists
+  - trees
+  - graphs
+  - association lists
+  - matrices
+  - stacks & queues
+- combinators and higher-order functions
+  - map
+  - filter
+  - fold
+    - fold-left
+    - fold-right
+  - unfold
+  - reduction
+    1. predicates (i.e. f: [a] -> Bool)
+- sorting routines
+- string manipulation
+  - regular expressions
+  - letter analogies
+  - Flash-Fill-style problems
+
+** Related Projects
+
+- Piantadosi, S. T. (under review). The computational origin of representation and conceptual change.
+  [[https://colala.bcs.rochester.edu/papers/piantadosi2016representation.pdf][paper]]
+
+- Graves, A., Wayne, G., Reynolds, M., Harley, T., Danihelka, I.,
+  Grabska-Barwi\'nska, Agnieszka, Colmenarejo, Sergio G\'omez, Grefenstette, E., Ramalho, T., Agapiou, J., et al. (2016). Hybrid computing using a neural network with dynamic external memory. Nature.
+  [[http://www.nature.com/nature/journal/v538/n7626/full/nature20101.html][paper]]
+
+- Osera, P., & Zdancewic, S. (2015). Type-and-example-directed program synthesis. In Proceedings of the 36th ACM SIGPLAN Conference on Programming Language Design and Implementation - PLDI 2015 (pp. 619-630).
+  [[http://dl.acm.org/citation.cfm?id=2738007][paper]]
+
+- Gulwani, S. (2011). Automating string processing in spreadsheets using
+  input-output examples. ACM SIGPLAN Notices, 46(1), 317.
+  [[http://dl.acm.org/citation.cfm?doid=1925844.1926423][paper]]
+
+- Tinkham, N. L. (1998). Schema induction for logic program synthesis. Artificial Intelligence, 98(1-2), 1–47.
+  [[http://www.sciencedirect.com/science/article/pii/S0004370297000556][paper]]
+
+** Contact
+
+The best way to suggest improvements to this project is to submit a pull request. You may also email mailto:joshua.s.rule@gmail.com, but the most likely response will be to ask that you submit a pull request ;-)
+
+** TODOs

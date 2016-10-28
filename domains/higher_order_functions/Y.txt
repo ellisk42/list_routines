@@ -1,0 +1,7 @@
+# the fixed point combinator
+# https://en.wikipedia.org/wiki/Fixed-point_combinator
+
+variable f
+
+# requires equal traces, as exact equality can't be tested
+(f (Y f)) ~= (Y f)

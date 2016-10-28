@@ -1,0 +1,7 @@
+# Y* is the mutual recursion Y combinator
+# https://stackoverflow.com/questions/4899113/
+
+variable f g
+
+# requires equal traces (to at least some limited depth)
+(f (g (Y* f g))) ~= (Y* f g)

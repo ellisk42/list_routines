@@ -1,0 +1,8 @@
+# A higher-order function for applying a function twice
+# 
+
+variable f x
+
+(f (f x)) = ((repeat f) x) 
+
+show ((repeat (repeat f)) x) 

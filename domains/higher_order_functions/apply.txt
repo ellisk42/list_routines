@@ -1,0 +1,6 @@
+# the apply operator
+# https://en.wikipedia.org/wiki/Apply
+
+variable f x 
+
+(f x) = (apply f x)

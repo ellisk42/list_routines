@@ -1,0 +1,9 @@
+# the list datatype
+# http://www.r6rs.org/final/html/r6rs/r6rs-Z-H-14.html#node_idx_630
+
+variable x y z
+
+nil = (list)
+(cons x nil) = (list x)
+(cons x (cons y nil)) = (list x y)
+cons x (cons y (cons z nil))) = (list x y z)

@@ -1,0 +1,8 @@
+# Reverse - a higher order function for swapping the position of two arguments
+# C combinator - https://en.wikipedia.org/wiki/B,_C,_K,_W_system
+
+variable x y
+
+(y x) = (reverse x y)
+
+show (reverse x y) 

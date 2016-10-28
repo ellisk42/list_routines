@@ -1,0 +1,16 @@
+# the rnrs lists (6) cons* operator
+# http://www.r6rs.org/final/html/r6rs-lib/r6rs-lib-Z-H-4.html#node_idx_240
+
+variable w x y z
+
+(cons* w nil) = (list w)
+(cons* w (list z)) = (list w z)
+(cons* w x nil) = (list w x)
+(cons* w x (list z)) = (list w x z)
+(cons* w x y nil) = (list w x y)
+(cons* w x y (list z)) = (list w x y z)
+(cons* w x y z nil) = (list w x y z)
+(cons* w x y z (list z)) = (list w x y z z)
+(cons* w x y z (list y z)) = (list w x y z y z)
+(cons* w x y z (list x y z)) = (list w x y z x y z)
+(cons* w x y z (list w x y z)) = (list w x y z w x y z)

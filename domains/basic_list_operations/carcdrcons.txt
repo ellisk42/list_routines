@@ -1,0 +1,22 @@
+# where it all begins - cons, cdr, car
+#
+# https://en.wikipedia.org/wiki/Cons
+# cons:   La.Lb.Lm.(m a b)
+# car:    def car z (z (p q p))
+# cdr:    def car z (z (p q q))
+
+# not strictly necessary
+unique car cons cdr 
+
+variable w x y z
+
+x = (car (cons x y)) 
+y = (cdr (cons x y)) 
+
+show (car (cons x (cons y z))) 
+show (cdr (cons x (cons y z))) 
+show (car (cons (cons y z) x)) 
+show (car (car (cons (cons y z) x))) 
+show (car (cons (cons (cons y w) z) x)) 
+show (car (car (cons (cons (cons y w) z) x))) 
+show (car (car (car (cons (cons (cons y w) z) x)))) 
