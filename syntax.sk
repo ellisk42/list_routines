@@ -99,7 +99,7 @@ generator ListExpression sampleListExpression(int d) {
 
 generator BooleanExpression sampleBooleanExpression(int d) {
   return new ??(n1 = sampleNumberExpression(d - 1),
-			    n2 = sampleNumberExpression(d - 1));
+		n2 = sampleNumberExpression(d - 1));
 }
 
 
@@ -112,9 +112,18 @@ int recursive_number([int nz,int na], int [nz] numbers, Array[na] arrays) {
 
   NumberExpression newNumber = sampleNumberExpression(2);
   ListExpression newList = sampleListExpression(2);
-  int r = recursive_number({evaluateNumber(newNumber, numbers, arrays)},
-			     {evaluateList(newList, numbers, arrays)});
   NumberExpression returnValue = sampleNumberExpression(2);
+
+
+  int [nz] numberArguments =
+    nz == 1 ? {evaluateNumber(newNumber, numbers, arrays)}
+  : {evaluateNumber(newNumber, numbers, arrays),
+      evaluateNumber(sampleNumberExpression(2), numbers, arrays)};
+
+  
+  int r = recursive_number(numberArguments,
+			   {evaluateList(newList, numbers, arrays)});
+  
   return evaluateNumber(returnValue, {numbers[0], r}, arrays);
 }
 
