@@ -1,0 +1,173 @@
+struct Array{
+  int s;
+  int [s] A;
+}
+
+bit array_equal(Array a,Array b) {
+  if (a.s != b.s) return 0;
+  for (int j = 0; j < a.s; j++)
+    if (a.A[j] != b.A[j]) return 0;
+  return 1;
+}
+
+bit array_equal_vector([int l], Array a,int [l] b) {
+  if (a.s != l) return 0;
+  for (int j = 0; j < l; j++)
+    if (a.A[j] != b[j]) return 0;
+  return 1;
+}
+
+
+Array concatenate(Array a1,Array a2) {
+  Array a = new Array(s = a1.s + a2.s,A = a1.A);
+  a.A[a1.s :: a2.s] = a2.A;
+  return a;
+}
+
+Array list([int l], int [l] d) { return new Array(s = l, A = d); }
+
+Array cdr(Array a) {
+  if (a.s == 0) {
+    assert 0;
+  }
+  return new Array(s = a.s-1, A = a.A[1 :: (a.s-1)]);
+}
+
+
+Array singleton(int n) {
+  return new Array(s = 1,A = {n});
+}
+
+int car(Array a) {
+  if (a.s > 0) {
+    return a.A[0];
+  }
+  assert 0;
+}
+
+Array cons(int z, Array a) {
+  Array ap = new Array(s = a.s + 1);
+  ap.A[0] = z;
+  ap.A[1::a.s] = a.A;
+  return ap;
+}
+
+Array empty_list = new Array(s = 0,A = {});
+
+adt NumberExpression{
+    K{ int v; }
+    VariableNumber{ int i; }
+    Car{ ListExpression l; }
+    Length{ ListExpression l; }
+    Increment{ NumberExpression n; }
+    Decrement{ NumberExpression n; }
+}
+
+adt ListExpression{
+    VariableList{ int i; }
+    Cdr { ListExpression l; }
+    Cons { NumberExpression n; ListExpression l; }
+    Empty{}
+}
+
+adt BooleanExpression{
+  Equals{ NumberExpression n1; NumberExpression n2;}
+  LessThan{ NumberExpression n1; NumberExpression n2;}
+}
+
+
+generator NumberExpression sampleNumberExpression(int d) {
+  assert d > 0;
+
+  if (??) return new K(v = ??);
+  if (??) return new VariableNumber(i = ??);
+  if (??) return new Car(l = sampleListExpression(d - 1));
+  if (??) return new Increment(n = sampleNumberExpression(d - 1));
+  if (??) return new Decrement(n = sampleNumberExpression(d - 1));
+  assert 0;
+}
+
+generator ListExpression sampleListExpression(int d) {
+  assert d > 0;
+
+  if (??) return new Empty();
+  if (??) return new VariableList(i = ??);
+  if (??) return new Cdr(l = sampleListExpression(d - 1));
+  if (??) return new Cons(n = sampleNumberExpression(d - 1), l = sampleListExpression(d - 1));
+  assert 0;
+}
+
+generator BooleanExpression sampleBooleanExpression(int d) {
+  return new ??(n1 = sampleNumberExpression(d - 1),
+			    n2 = sampleNumberExpression(d - 1));
+}
+
+
+int recursive_number([int nz,int na], int [nz] numbers, Array[na] arrays) {
+  BooleanExpression predicate = sampleBooleanExpression(2);
+  NumberExpression baseCase = sampleNumberExpression(2);
+  if (evaluateBoolean(predicate, numbers, arrays)) {
+    return evaluateNumber(baseCase, numbers, arrays);
+  }
+
+  NumberExpression newNumber = sampleNumberExpression(2);
+  ListExpression newList = sampleListExpression(2);
+  int r = recursive_number({evaluateNumber(newNumber, numbers, arrays)},
+			     {evaluateList(newList, numbers, arrays)});
+  NumberExpression returnValue = sampleNumberExpression(2);
+  return evaluateNumber(returnValue, {numbers[0], r}, arrays);
+}
+
+int numberExpressionCost(NumberExpression e) {
+  switch (e){
+  case K:{return 3; }
+  case VariableNumber:{return 1;}
+  case Car:{return 1 + listExpressionCost(e.l);}
+  case Length:{return 1 + listExpressionCost(e.l);}
+  case Increment:{return 1 + numberExpressionCost(e.n);}
+  case Decrement:{return 1 + numberExpressionCost(e.n);}
+  }
+}
+
+int listExpressionCost(ListExpression l) {
+  return 1;
+}
+
+bit evaluateBoolean([int nz,int na], BooleanExpression e, int [nz] numbers, Array[na] arrays) {
+  switch (e){
+  case Equals:{return evaluateNumber(e.n1, numbers, arrays) == evaluateNumber(e.n2, numbers, arrays);}
+  case LessThan:{return evaluateNumber(e.n1, numbers, arrays) < evaluateNumber(e.n2, numbers, arrays);}
+  }
+}
+ 
+Array evaluateList([int nz,int na], ListExpression e, int [nz] numbers, Array[na] arrays) {
+  switch (e){
+  case Empty:{return empty_list; }
+  case VariableList:{return arrays[e.i];}
+  case Cdr:{return cdr(evaluateList(e.l, numbers, arrays));}
+  case Cons:{return cons(evaluateNumber(e.n, numbers, arrays),
+			 evaluateList(e.l, numbers, arrays));}
+  }
+}
+
+int evaluateNumber([int nz,int na], NumberExpression e, int [nz] numbers, Array[na] arrays) {
+  switch (e){
+  case K:{return e.v; }
+  case VariableNumber:{return numbers[e.i];}
+  case Car:{return car(evaluateList(e.l, numbers, arrays));}
+  case Length:{return evaluateList(e.l, numbers, arrays).s;}
+  case Increment:{return 1 + evaluateNumber(e.n,numbers,arrays);}
+  case Decrement:{return evaluateNumber(e.n,numbers,arrays) - 1;}
+  }
+}
+
+void numberTest([int l], int z, int [l] a, int t) {
+  assert recursive_number({z},{list(a)}) == t;
+}
+
+harness void main() {
+  numberTest(1,{9,2},9);
+  numberTest(2,{9,2},2);
+  numberTest(3,{8,2,5},5);
+  numberTest(1,{1,7},1);
+}

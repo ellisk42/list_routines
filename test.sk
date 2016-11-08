@@ -277,10 +277,11 @@ harness void list_get() {
   recursive_number_test_case({3},{1,4,3},3);
   }*/
 
-
-harness void list_set() {
-  recursive_list_test_case({1,5},{9,8},{5,8});
-}
+/*harness void list_set1() { recursive_list_test_case({1,5},{9,8},{5,8}); }
 harness void list_set2() { recursive_list_test_case({1,3},{9,8},{3,8}); }
 harness void list_set3() { recursive_list_test_case({2,5},{9,8},{9,5}); }
-harness void list_set4() { recursive_list_test_case({2,3},{0,8,4},{0,3,4}); }
+harness void list_set4() { recursive_list_test_case({2,3},{0,8,4},{0,3,4}); }*/
+
+harness void insert1() { recursive_list_test_case({1,0},{2,4},{1,2,4}); }
+harness void insert2() { recursive_list_test_case({3,0},{2,4},{2,3,4}); }
+harness void insert3() { recursive_list_test_case({9,0},{2,4},{2,4,9}); }
