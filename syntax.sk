@@ -1,30 +1,44 @@
 include "language.skh";
-pragma options "--bnd-unroll-amnt 4 --bnd-arr1d-size 4 --bnd-arr-size 4";
+pragma options "--bnd-unroll-amnt 3 --bnd-arr1d-size 3 --bnd-arr-size 3";
 
 //#define SECONDNUMBER
 
 Array recursive_list([int nz,int na], int [nz] numbers, Array[na] arrays) {
+  int cost = 0;
+  bit additionalBaseCase = ??;
+
   BooleanExpression predicate = sampleBooleanExpression(UNROLL);
   ListExpression baseCase = sampleListExpression(UNROLL);
+  cost += booleanCost(predicate) + listCost(baseCase);
+
+  BooleanExpression predicate2;
+  ListExpression baseCase2;
+  if (additionalBaseCase) {
+    predicate2 = sampleBooleanExpression(UNROLL);
+    baseCase2 = sampleListExpression(UNROLL);
+    cost += booleanCost(predicate2) + listCost(baseCase2);
+  }  
 
   NumberExpression newNumber1 = sampleNumberExpression(UNROLL);
+  cost += numberCost(newNumber1);
 #ifdef SECONDNUMBER
   NumberExpression newNumber2 = sampleNumberExpression(UNROLL);
+  cost += numberCost(newNumber2);
 #endif
   ListExpression newList = sampleListExpression(UNROLL);
   ListExpression returnValue = sampleListExpression(UNROLL);
+  cost += listCost(newList) + listCost(returnValue);
 
-  minimize(booleanCost(predicate) +
-	   listCost(baseCase) +
-	   numberCost(newNumber1) +
-#ifdef SECONDNUMBER	   
-	   numberCost(newNumber2) +
-#endif
-	   listCost(newList) +
-	   listCost(returnValue));
+  minimize(cost);
   
   if (evaluateBoolean(predicate, numbers, arrays)) {
     return evaluateList(baseCase, numbers, arrays);
+  }
+
+  if (additionalBaseCase) {
+    if (evaluateBoolean(predicate2, numbers, arrays)) {
+      return evaluateList(baseCase2, numbers, arrays);
+    }
   }
 
   int [nz] numberArguments = {evaluateNumber(newNumber1, numbers, arrays)
@@ -86,5 +100,7 @@ void recursive_list_test_case([int l,int nz,int nt], int[nz] z, int [l] a, int[n
 /* } */
 
 harness void learn_to_insert() {
-  recursive_list_test_case({3},{1,2,5},{1,2,3,5});
+  recursive_list_test_case({3},{1,9},{1,3,9});
+  recursive_list_test_case({3},{1,2},{1,2,3});
+  recursive_list_test_case({9},{},{9});
 }
