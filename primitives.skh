@@ -1,0 +1,59 @@
+struct Array{
+  int s;
+  int [s] A;
+}
+
+bit array_equal(Array a,Array b) {
+  if (a.s != b.s) return 0;
+  for (int j = 0; j < a.s; j++)
+    if (a.A[j] != b.A[j]) return 0;
+  return 1;
+}
+
+bit array_equal_vector([int l], Array a,int [l] b) {
+  if (a.s != l) return 0;
+  for (int j = 0; j < l; j++)
+    if (a.A[j] != b[j]) return 0;
+  return 1;
+}
+
+
+Array concatenate(Array a1,Array a2) {
+  Array a = new Array(s = a1.s + a2.s,A = a1.A);
+  a.A[a1.s :: a2.s] = a2.A;
+  return a;
+}
+
+Array list([int l], int [l] d) { return new Array(s = l, A = d); }
+
+Array cdr(Array a) {
+  if (a.s == 0) {
+    assert 0;
+  }
+  return new Array(s = a.s-1, A = a.A[1 :: (a.s-1)]);
+}
+
+
+Array singleton(int n) {
+  return new Array(s = 1,A = {n});
+}
+
+int car(Array a) {
+  if (a.s > 0) {
+    return a.A[0];
+  }
+  assert 0;
+}
+
+
+Array cons(int z, Array a) {
+  Array ap = new Array(s = a.s + 1);
+  ap.A[0] = z;
+  ap.A[1::a.s] = a.A;
+  return ap;
+}
+
+Array empty_list = new Array(s = 0,A = {});
+
+
+

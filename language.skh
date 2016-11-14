@@ -1,0 +1,138 @@
+include "primitives.skh";
+
+
+adt NumberExpression{
+    K{ int v; }
+    VariableNumber{ int i; }
+    Car{ ListExpression l; }
+    //    Length{ ListExpression l; }
+    Increment{ NumberExpression n; }
+    Decrement{ NumberExpression n; }
+}
+
+adt ListExpression{
+    VariableList{ int i; }
+    Cdr { ListExpression l; }
+    Cons { NumberExpression n; ListExpression l; }
+    Insertion { NumberExpression n; ListExpression l; }
+    Empty{}
+}
+
+adt BooleanExpression{
+  Comparison{ Compare op; NumberExpression n1; NumberExpression n2;}
+  IsEmpty{ ListExpression l; }
+}
+
+adt Compare{
+  Equals{}
+  LessThan{}
+}
+
+Array insertion(int z, Array a) {
+  if (a.s == 0) return cons(z,empty_list);
+  if (z < car(a)) return cons(z,a);
+  return cons(car(a), insertion(z, cdr(a)));
+}
+
+generator NumberExpression sampleNumberExpression(int d) {
+  assert d > 0;
+
+  if (??) return new K(v = ??);
+  if (??) return new VariableNumber(i = ??);
+  if (??) return new Car(l = sampleListExpression(d - 1));
+  if (??) return new Car(l = new VariableList(i = ??));
+  if (??) return new Increment(n = sampleNumberExpression(d - 1));
+  if (??) return new Decrement(n = sampleNumberExpression(d - 1));
+  assert 0;
+}
+
+generator ListExpression sampleListExpression(int d) {
+  assert d > 0;
+
+  if (??) return new Empty();
+  if (??) return new VariableList(i = ??);
+  if (??) return new Cdr(l = sampleListExpression(d - 1));
+  if (??) return new Cdr(l = new VariableList(i = ??));
+  if (??) return new Cons(n = sampleNumberExpression(d - 1), l = sampleListExpression(d - 1));
+  if (??) return new Insertion(n = sampleNumberExpression(d - 1), l = sampleListExpression(d - 1));
+  assert 0;
+}
+
+generator Compare sampleComparisonOperator(){
+  if (??) return new LessThan();
+  if (??) return new Equals();
+  assert 0;
+}
+
+generator BooleanExpression sampleBooleanExpression(int d) {
+  if (??) return new Comparison(op = sampleComparisonOperator(),
+				n1 = sampleNumberExpression(d - 1),
+				n2 = sampleNumberExpression(d - 1));
+  if (??) return new IsEmpty(l = sampleListExpression(d - 1));
+}
+
+int numberCost(NumberExpression e) {
+  switch (e){
+  case K:{return (e.v == 0 ? 0 : 3);}
+  case VariableNumber:{return 0;}
+  case Car:{return 1 + listCost(e.l);}
+    //  case Length:{return 1 + listCost(e.l);}
+  case Increment:{return 1 + numberCost(e.n);}
+  case Decrement:{return 1 + numberCost(e.n);}
+  }
+}
+
+int listCost(ListExpression l) {
+  switch (l) {
+  case Empty:{return 0;}
+  case VariableList:{return 0;}
+  case Cdr:{return 1 + listCost(l.l);}
+  case Cons:{return 1 + listCost(l.l) + numberCost(l.n);}
+  case Insertion:{return 1 + listCost(l.l) + numberCost(l.n);}
+  }
+}
+
+int booleanCost(BooleanExpression e) {
+  switch (e) {
+  case Comparison:{return numberCost(e.n1) + numberCost(e.n2);}
+  case IsEmpty:{return listCost(e.l);}
+  }
+}
+
+bit evaluateBoolean([int nz,int na], BooleanExpression e, int [nz] numbers, Array[na] arrays) {
+  switch (e){
+  case IsEmpty:{return evaluateList(e.l, numbers, arrays).s == 0;}
+  case Comparison:{
+    int x = evaluateNumber(e.n1, numbers, arrays);
+    int y = evaluateNumber(e.n2, numbers, arrays);
+    Compare op = e.op;
+    switch (op) {
+    case Equals:{ return x == y;}
+    case LessThan:{ return x < y;}
+    }
+  }
+  }
+}
+ 
+Array evaluateList([int nz,int na], ListExpression e, int [nz] numbers, Array[na] arrays) {
+  switch (e){
+  case Empty:{return empty_list; }
+  case VariableList:{return arrays[e.i];}
+  case Cdr:{return cdr(evaluateList(e.l, numbers, arrays));}
+  case Cons:{return cons(evaluateNumber(e.n, numbers, arrays),
+			 evaluateList(e.l, numbers, arrays));}
+  case Insertion:{return insertion(evaluateNumber(e.n, numbers, arrays),
+				   evaluateList(e.l, numbers, arrays));}
+  }
+}
+
+int evaluateNumber([int nz,int na], NumberExpression e, int [nz] numbers, Array[na] arrays) {
+  switch (e){
+  case K:{return e.v; }
+  case VariableNumber:{return numbers[e.i];}
+  case Car:{return car(evaluateList(e.l, numbers, arrays));}
+    //  case Length:{return evaluateList(e.l, numbers, arrays).s;}
+  case Increment:{return 1 + evaluateNumber(e.n,numbers,arrays);}
+  case Decrement:{return evaluateNumber(e.n,numbers,arrays) - 1;}
+  }
+}
