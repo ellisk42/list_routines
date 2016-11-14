@@ -1,25 +1,25 @@
 include "language.skh";
 pragma options "--bnd-unroll-amnt 4 --bnd-arr1d-size 4 --bnd-arr-size 4";
 
+//#define SECONDNUMBER
+
 Array recursive_list([int nz,int na], int [nz] numbers, Array[na] arrays) {
   BooleanExpression predicate = sampleBooleanExpression(UNROLL);
   ListExpression baseCase = sampleListExpression(UNROLL);
 
-  /*  NumberExpression[nz] newNumbers;
-  int zi = 0;
-  repeat(nz){
-    newNumbers[zi++] = sampleNumberExpression(UNROLL);
-  }*/
-  
   NumberExpression newNumber1 = sampleNumberExpression(UNROLL);
+#ifdef SECONDNUMBER
   NumberExpression newNumber2 = sampleNumberExpression(UNROLL);
+#endif
   ListExpression newList = sampleListExpression(UNROLL);
   ListExpression returnValue = sampleListExpression(UNROLL);
 
   minimize(booleanCost(predicate) +
 	   listCost(baseCase) +
 	   numberCost(newNumber1) +
+#ifdef SECONDNUMBER	   
 	   numberCost(newNumber2) +
+#endif
 	   listCost(newList) +
 	   listCost(returnValue));
   
@@ -27,8 +27,11 @@ Array recursive_list([int nz,int na], int [nz] numbers, Array[na] arrays) {
     return evaluateList(baseCase, numbers, arrays);
   }
 
-  int [nz] numberArguments = {evaluateNumber(newNumber1, numbers, arrays),
-			      evaluateNumber(newNumber2, numbers, arrays)};
+  int [nz] numberArguments = {evaluateNumber(newNumber1, numbers, arrays)
+#ifdef SECONDNUMBER			      
+			      , evaluateNumber(newNumber2, numbers, arrays)
+#endif
+  };
   
   Array r = recursive_list(numberArguments,
 			   {evaluateList(newList, numbers, arrays)});
@@ -77,7 +80,11 @@ void recursive_list_test_case([int l,int nz,int nt], int[nz] z, int [l] a, int[n
 /* } */
 
 
-harness void learn_to_set() {
-  recursive_list_test_case({1,4}, {3,2,8}, {4,2,8});
-  recursive_list_test_case({3,4}, {3,2,8}, {3,2,4});
+/* harness void learn_to_set() { */
+/*   recursive_list_test_case({1,4}, {3,2,8}, {4,2,8}); */
+/*   recursive_list_test_case({3,4}, {3,2,8}, {3,2,4}); */
+/* } */
+
+harness void learn_to_insert() {
+  recursive_list_test_case({3},{1,2,5},{1,2,3,5});
 }
