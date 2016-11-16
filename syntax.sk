@@ -4,7 +4,7 @@ pragma options "--bnd-unroll-amnt 3 --bnd-arr1d-size 3 --bnd-arr-size 3 --bnd-in
 //#define FIRSTNUMBER
 //#define SECONDNUMBER
 
-Array recursive_list([int nz,int na], int [nz] numbers, Array[na] arrays) {
+Array recursive_list([int nz,int na], int [nz] numbers, Array[na] arrays, int bound) {
   int cost = 0;
   bit additionalBaseCase = ??;
 
@@ -43,6 +43,8 @@ Array recursive_list([int nz,int na], int [nz] numbers, Array[na] arrays) {
     }
   }
 
+  if (bound < 1) { assert 0; return null; }
+
   int [nz] numberArguments = {
 #ifdef FIRSTNUMBER
     evaluateNumber(newNumber1, numbers, arrays)
@@ -53,7 +55,8 @@ Array recursive_list([int nz,int na], int [nz] numbers, Array[na] arrays) {
   };
   
   Array r = recursive_list(numberArguments,
-			   {evaluateList(newList, numbers, arrays)});
+			   {evaluateList(newList, numbers, arrays)},
+			   bound - 1);
   
   return evaluateList(returnValue, numbers, {arrays[0], r});
 }
@@ -89,7 +92,7 @@ void recursive_number_test_case([int l,int nz], int[nz] z, int [l] a, int t) {
 }
 
 void recursive_list_test_case([int l,int nz,int nt], int[nz] z, int [l] a, int[nt] t) {
-  assert array_equal_vector(recursive_list(z,{list(a)}), t);
+  assert array_equal_vector(recursive_list(z,{list(a)},l+1), t);
 }
 
 /* harness void learn_to_index() { */
@@ -111,4 +114,5 @@ void recursive_list_test_case([int l,int nz,int nt], int[nz] z, int [l] a, int[n
 /* } */
 harness void learn_to_sort(){
   recursive_list_test_case({},{2,9,1},{1,2,9});
+  //  recursive_list_test_case({},{},{});
 }
