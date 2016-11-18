@@ -1,4 +1,7 @@
-include "primitives.skh";
+include "functional_primitives.skh";
+//include "primitives.skh";
+
+//#define INSERT
 
 
 adt NumberExpression{
@@ -14,7 +17,9 @@ adt ListExpression{
     VariableList{ int i; }
     Cdr { ListExpression l; }
     Cons { NumberExpression n; ListExpression l; }
+#ifdef INSERT
     Insertion { NumberExpression n; ListExpression l; }
+#endif
     Empty{}
 }
 
@@ -28,11 +33,11 @@ adt Compare{
   LessThan{}
 }
 
-Array insertion(int z, Array a) {
+/*Array insertion(int z, Array a) {
   if (a.s == 0) return cons(z,empty_list);
   if (z < car(a)) return cons(z,a);
   return cons(car(a), insertion(z, cdr(a)));
-}
+  }*/
 
 generator NumberExpression sampleNumberExpression(int d) {
   assert d > 0;
@@ -54,7 +59,9 @@ generator ListExpression sampleListExpression(int d) {
   if (??) return new Cdr(l = sampleListExpression(d - 1));
   if (??) return new Cdr(l = new VariableList(i = ??));
   if (??) return new Cons(n = sampleNumberExpression(d - 1), l = sampleListExpression(d - 1));
+#ifdef INSERT
   if (??) return new Insertion(n = sampleNumberExpression(d - 1), l = sampleListExpression(d - 1));
+#endif
   assert 0;
 }
 
@@ -88,7 +95,9 @@ int listCost(ListExpression l) {
   case VariableList:{return 0;}
   case Cdr:{return 1 + listCost(l.l);}
   case Cons:{return 1 + listCost(l.l) + numberCost(l.n);}
+#ifdef INSERT
   case Insertion:{return 1 + listCost(l.l) + numberCost(l.n);}
+#endif
   }
 }
 
@@ -101,7 +110,7 @@ int booleanCost(BooleanExpression e) {
 
 bit evaluateBoolean([int nz,int na], BooleanExpression e, int [nz] numbers, Array[na] arrays) {
   switch (e){
-  case IsEmpty:{return evaluateList(e.l, numbers, arrays).s == 0;}
+  case IsEmpty:{return empty_predicate(evaluateList(e.l, numbers, arrays));}
   case Comparison:{
     int x = evaluateNumber(e.n1, numbers, arrays);
     int y = evaluateNumber(e.n2, numbers, arrays);
@@ -121,8 +130,10 @@ Array evaluateList([int nz,int na], ListExpression e, int [nz] numbers, Array[na
   case Cdr:{return cdr(evaluateList(e.l, numbers, arrays));}
   case Cons:{return cons(evaluateNumber(e.n, numbers, arrays),
 			 evaluateList(e.l, numbers, arrays));}
+#ifdef INSERT
   case Insertion:{return insertion(evaluateNumber(e.n, numbers, arrays),
 				   evaluateList(e.l, numbers, arrays));}
+#endif
   }
 }
 
