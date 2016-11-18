@@ -30,7 +30,7 @@ grammar.add_rule('START', '(%s if (myRest_(x) != []) else %s)', ['NUMBER','NUMBE
 
 # Define some operations
 grammar.add_rule('LIST', 'myRest_', ['LIST'], 1.0)
-# grammar.add_rule('LIST', 'cons_', ['NUMBER', 'LIST'], 1.0)
+grammar.add_rule('LIST', 'cons_', ['NUMBER', 'LIST'], 1.0)
 # grammar.add_rule('LIST', '[]', None, 1.0)
 grammar.add_rule('LIST', 'x',None,1.0)
 
