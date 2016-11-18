@@ -1,7 +1,7 @@
 include "language.skh";
 pragma options "--bnd-unroll-amnt 3 --bnd-arr1d-size 3 --bnd-arr-size 3 --bnd-inline-amnt 3";
 
-//#define FIRSTNUMBER
+#define FIRSTNUMBER
 //#define SECONDNUMBER
 
 Array recursive_list([int nz,int na], int [nz] numbers, Array[na] arrays, int bound) {
@@ -95,11 +95,11 @@ void recursive_list_test_case([int l,int nz,int nt], int[nz] z, int [l] a, int[n
   assert array_equal_vector(recursive_list(z,{list(a)},l+1), t);
 }
 
-/* harness void learn_to_index() { */
-/*   recursive_number_test_case({1}, {3,9,8}, 3); */
-/*   recursive_number_test_case({2}, {1,9,8}, 9); */
-/*   recursive_number_test_case({3}, {1,9,8}, 8); */
-/* } */
+harness void learn_to_index() {
+  recursive_number_test_case({1}, {3,9,8}, 3);
+  recursive_number_test_case({2}, {1,9,8}, 9);
+  recursive_number_test_case({3}, {1,9,8}, 8);
+}
 
 
 /* harness void learn_to_set() { */
@@ -107,11 +107,11 @@ void recursive_list_test_case([int l,int nz,int nt], int[nz] z, int [l] a, int[n
 /*   recursive_list_test_case({3,4}, {3,2,8}, {3,2,4}); */
 /* } */
 
-harness void learn_to_insert() {
-  recursive_list_test_case({3},{1,9},{1,3,9});
-  recursive_list_test_case({3},{1,2},{1,2,3});
-  recursive_list_test_case({9},{},{9});
-}
+/* harness void learn_to_insert() { */
+/*   recursive_list_test_case({3},{1,9},{1,3,9}); */
+/*   recursive_list_test_case({3},{1,2},{1,2,3}); */
+/*   recursive_list_test_case({9},{},{9}); */
+/* } */
 /* harness void learn_to_sort(){ */
 /*   recursive_list_test_case({},{2,9,1},{1,2,9}); */
 /*   //  recursive_list_test_case({},{},{}); */

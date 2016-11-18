@@ -3,6 +3,8 @@ struct Array{
   int [s] A;
 }
 
+bit empty_predicate(Array array) { return array.s == 0; }
+  
 bit array_equal(Array a,Array b) {
   if (a.s != b.s) return 0;
   for (int j = 0; j < a.s; j++)
