@@ -79,6 +79,10 @@ class MyHypothesis(RecursiveLOTHypothesis):
 def list_(l):
     if l == []: return l
     return cons_(l[0],list_(l[1:]))
+def insert(x,ys):
+    if ys == []: return [x]
+    if x < ys[0]: return [x] + ys
+    return [ys[0]] + insert(x,ys[1:])
 
 lastExamples = [(list_([8]), 8),
                 (list_([2,9,1]), 1),
@@ -93,9 +97,17 @@ getExamples = [[input[0], list_(input[1:]), input[input[0]]]
                              [2,3,3,5],
                              [3,1,0,8,4],
                              [3,4,0,7,1,47]] ]
+insertExamples = [[input[0], list_(input[1:]), list_(insert(input[0],input[1:]))]
+                  for input in [[2],
+                                [1],
+                                [5,1,2,3],
+                                [1,2,3],
+                                [3,4]] ]
 data = [ FunctionData(input = e[:-1], output = e[-1], alpha = 0.95)
-         for e in getExamples ]
+         for e in insertExamples ]
 print data
+
+raise Exception('test')
 
 h0 = MyHypothesis()
 count = Counter()
