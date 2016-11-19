@@ -1,8 +1,8 @@
 include "language.skh";
-pragma options "--bnd-unroll-amnt 3 --bnd-arr1d-size 3 --bnd-arr-size 3 --bnd-inline-amnt 3";
+pragma options "--bnd-unroll-amnt 4 --bnd-arr1d-size 4 --bnd-arr-size 4 --bnd-inline-amnt 4";
 
 #define FIRSTNUMBER
-//#define SECONDNUMBER
+#define SECONDNUMBER
 
 Array recursive_list([int nz,int na], int [nz] numbers, Array[na] arrays, int bound) {
   int cost = 0;
@@ -61,6 +61,12 @@ Array recursive_list([int nz,int na], int [nz] numbers, Array[na] arrays, int bo
   return evaluateList(returnValue, numbers, {arrays[0], r});
 }
 
+Array basic_array([int nz,int na], int [nz] numbers, Array[na] arrays){
+    ListExpression expression = sampleListExpression(UNROLL);
+    minimize(listCost(expression));
+    return evaluateList(expression, numbers, arrays);
+}
+
 int recursive_number([int nz,int na], int [nz] numbers, Array[na] arrays) {
   BooleanExpression predicate = sampleBooleanExpression(UNROLL);
   NumberExpression baseCase = sampleNumberExpression(UNROLL);
@@ -87,6 +93,8 @@ int recursive_number([int nz,int na], int [nz] numbers, Array[na] arrays) {
 }
 
 
+
+
 void recursive_number_test_case([int l,int nz], int[nz] z, int [l] a, int t) {
   assert recursive_number(z,{list(a)}) == t;
 }
@@ -95,11 +103,15 @@ void recursive_list_test_case([int l,int nz,int nt], int[nz] z, int [l] a, int[n
   assert array_equal_vector(recursive_list(z,{list(a)},l+1), t);
 }
 
-harness void learn_to_index() {
-  recursive_number_test_case({1}, {3,9,8}, 3);
-  recursive_number_test_case({2}, {1,9,8}, 9);
-  recursive_number_test_case({3}, {1,9,8}, 8);
+void basic_list_test_case([int l,int nz,int nt], int[nz] z, int [l] a, int[nt] t) {
+  assert array_equal_vector(basic_array(z,{list(a)}), t);
 }
+
+// harness void learn_to_index() {
+//   recursive_number_test_case({1}, {3,9,8}, 3);
+//   recursive_number_test_case({2}, {1,9,8}, 9);
+//   recursive_number_test_case({3}, {1,9,8}, 8);
+// }
 
 
 /* harness void learn_to_set() { */
@@ -107,12 +119,17 @@ harness void learn_to_index() {
 /*   recursive_list_test_case({3,4}, {3,2,8}, {3,2,4}); */
 /* } */
 
-/* harness void learn_to_insert() { */
-/*   recursive_list_test_case({3},{1,9},{1,3,9}); */
-/*   recursive_list_test_case({3},{1,2},{1,2,3}); */
-/*   recursive_list_test_case({9},{},{9}); */
-/* } */
-/* harness void learn_to_sort(){ */
-/*   recursive_list_test_case({},{2,9,1},{1,2,9}); */
-/*   //  recursive_list_test_case({},{},{}); */
-/* } */
+// harness void learn_to_insert() {
+//   recursive_list_test_case({3},{1,9},{1,3,9});
+//   recursive_list_test_case({3},{1,2,2},{1,2,2,3});
+//   recursive_list_test_case({9},{},{9});
+// }
+// harness void learn_to_sort(){
+//   recursive_list_test_case({},{2,9,1,3},{1,2,3,9});
+//   //  recursive_list_test_case({},{},{});
+// }
+
+harness void learn_swap(){
+    basic_list_test_case({1,2},{9,2},{2,9});
+    basic_list_test_case({2,3},{5,4,6},{5,6,4});
+}

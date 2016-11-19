@@ -2,7 +2,8 @@
 include "primitives.skh";
 
 //#define INSERT
-
+#define GET
+#define SET
 
 adt NumberExpression{
     K{ int v; }
@@ -11,6 +12,9 @@ adt NumberExpression{
     //    Length{ ListExpression l; }
     Increment{ NumberExpression n; }
     Decrement{ NumberExpression n; }
+#ifdef GET
+    Get{ NumberExpression n; ListExpression l; }
+#endif
 }
 
 adt ListExpression{
@@ -20,6 +24,8 @@ adt ListExpression{
 #ifdef INSERT
     Insertion { NumberExpression n; ListExpression l; }
 #endif
+#ifdef SET
+    Set{NumberExpression n; NumberExpression n2; ListExpression l; }
     Empty{}
 }
 
@@ -33,11 +39,21 @@ adt Compare{
   LessThan{}
 }
 
-/*Array insertion(int z, Array a) {
-  if (a.s == 0) return cons(z,empty_list);
-  if (z < car(a)) return cons(z,a);
-  return cons(car(a), insertion(z, cdr(a)));
-  }*/
+Array insertion(int z, Array a) {
+    if (a.s == 0) return cons(z,empty_list);
+    if (z < car(a)) return cons(z,a);
+    return cons(car(a), insertion(z, cdr(a)));
+}
+
+int learnedGet(int z, Array a) {
+    if (z == 1) return car(a);
+    return learnedGet(z - 1, cdr(a));
+}
+
+Array learnedSet(int j,int v,Array a){
+    if (j == 1) return cons(v,cdr(a));
+    return cons(car(a),learnedSet(j - 1,v,cdr(a)));
+}
 
 generator NumberExpression sampleNumberExpression(int d) {
   assert d > 0;
@@ -48,6 +64,9 @@ generator NumberExpression sampleNumberExpression(int d) {
   if (??) return new Car(l = new VariableList(i = ??));
   if (??) return new Increment(n = sampleNumberExpression(d - 1));
   if (??) return new Decrement(n = sampleNumberExpression(d - 1));
+#ifdef GET
+  if (??) return new Get(n = sampleNumberExpression(d - 1),l = sampleListExpression(d - 1));
+#endif
   assert 0;
 }
 
@@ -61,6 +80,10 @@ generator ListExpression sampleListExpression(int d) {
   if (??) return new Cons(n = sampleNumberExpression(d - 1), l = sampleListExpression(d - 1));
 #ifdef INSERT
   if (??) return new Insertion(n = sampleNumberExpression(d - 1), l = sampleListExpression(d - 1));
+#endif
+#ifdef SET
+    if (??) return new Set(n = sampleNumberExpression(d - 1), n2 = sampleNumberExpression(d - 1), 
+			   l = sampleListExpression(d - 1));
 #endif
   assert 0;
 }
@@ -86,6 +109,9 @@ int numberCost(NumberExpression e) {
     //  case Length:{return 1 + listCost(e.l);}
   case Increment:{return 1 + numberCost(e.n);}
   case Decrement:{return 1 + numberCost(e.n);}
+#ifdef GET
+  case Get:{return 1 + numberCost(e.n) + listCost(e.l);}
+#endif
   }
 }
 
@@ -97,6 +123,9 @@ int listCost(ListExpression l) {
   case Cons:{return 1 + listCost(l.l) + numberCost(l.n);}
 #ifdef INSERT
   case Insertion:{return 1 + listCost(l.l) + numberCost(l.n);}
+#endif
+#ifdef SET
+  case Set:{return 1 + listCost(l.l) + numberCost(l.n) + numberCost(l.n2);}
 #endif
   }
 }
@@ -134,6 +163,11 @@ Array evaluateList([int nz,int na], ListExpression e, int [nz] numbers, Array[na
   case Insertion:{return insertion(evaluateNumber(e.n, numbers, arrays),
 				   evaluateList(e.l, numbers, arrays));}
 #endif
+#ifdef SET
+  case Set:{return learnedSet(evaluateNumber(e.n, numbers, arrays),
+			      evaluateNumber(e.n2, numbers, arrays),
+			      evaluateList(e.l, numbers, arrays));}
+#endif
   }
 }
 
@@ -145,5 +179,9 @@ int evaluateNumber([int nz,int na], NumberExpression e, int [nz] numbers, Array[
     //  case Length:{return evaluateList(e.l, numbers, arrays).s;}
   case Increment:{return 1 + evaluateNumber(e.n,numbers,arrays);}
   case Decrement:{return evaluateNumber(e.n,numbers,arrays) - 1;}
+#ifdef GET            
+  case Get:{return learnedGet(evaluateNumber(e.n,numbers,arrays),
+			      evaluateList(e.l,numbers,arrays));}
+#endif
   }
 }
