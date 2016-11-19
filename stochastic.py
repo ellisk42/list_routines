@@ -115,7 +115,7 @@ insertExamples = [[input[0], list_(input[1:]), list_(insert(input[0],input[1:]))
                                 [5,1,2,3],
                                 [1,2,3],
                                 [3,4],
-                                [4,2]] ]
+                                [3,2]] ]
 data = [ FunctionData(input = e[:-1], output = e[-1], alpha = 0.95)
          for e in insertExamples ]
 print data
@@ -126,6 +126,6 @@ h0 = MyHypothesis()
 count = Counter()
 for h in MHSampler(h0,data,steps = 100000,likelihood_temperature=0.1):
     count[h] += 1
-for h in sorted(count.keys(),key = lambda x: x.likelihood + x.prior):
+for h in sorted(count.keys(),key = lambda x: x.likelihood*100 + x.prior):
     print count[h],h.likelihood,h.prior,h
 
