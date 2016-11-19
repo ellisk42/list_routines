@@ -1,0 +1,83 @@
+adt Array{
+  Cell{int h; Array t;}
+  EmptyList{}
+}
+
+bit empty_predicate(Array a){
+  switch(a){
+  case EmptyList:{return 1;}
+  case Cell:{return 0;}
+  }
+}
+
+bit array_equal(Array a,Array b) {
+  switch(a){
+  case EmptyList:{
+    switch(b){
+    case EmptyList:{return 1;}
+    case Cell:{return 0;}
+    }
+  }
+  case Cell:{
+    switch(b){
+    case EmptyList:{return 0;}
+    case Cell:{return a.h == b.h && array_equal(a.t,b.t);}
+    }
+  }
+  }
+}
+
+bit array_equal_vector_([int l], Array a,int [l] b) {
+  return array_equal_vector_r(a,b,0);
+}
+bit array_equal_vector_r([int l], Array a,int [l] b, int j) {
+  switch (a){
+  case EmptyList:{return j == l;}
+  case Cell:{
+    if (j >= l || a.h != b[j]) return 0;
+    return array_equal_vector_r(a.t, b, j+1);
+  }
+  }
+}	
+
+Array list([int l], int [l] d)  {
+  Array a = empty_list;
+  for (int j = l - 1; j >= 0; j--) {
+    a = cons(d[j],a);
+  }
+  return a;
+}
+
+Array cdr(Array a) {
+  switch(a){
+  case EmptyList: {
+    assert 0;
+  }
+  case Cell:{ return a.t; }
+  }
+}
+
+
+Array singleton(int n) {
+  return new Cell(h = n,t = empty_list);
+}
+
+int car(Array a) {
+  switch(a){
+  case EmptyList: {
+    assert 0;
+  }
+  case Cell:{ return a.h; }
+  }
+}
+
+
+
+Array cons(int z, Array a) {
+  return new Cell(h = z,t = a);
+}
+
+Array empty_list = new EmptyList();
+
+
+

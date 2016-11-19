@@ -24,20 +24,24 @@ def myRest_(xs):
     else:
         raise Exception('REST')
 
+STARTTYPE = 'LIST'
+    
 # Define a grammar object
 grammar = Grammar(start='START')
 
-grammar.add_rule('START', '(%s if %s else %s)', ['NUMBER','PREDICATE','START'],1.0)
-grammar.add_rule('START', '%s', ['NUMBER'],2.0)
+# cond starts every program
+grammar.add_rule('START', '(%s if %s else %s)', [STARTTYPE,'PREDICATE','START'],1.0)
+grammar.add_rule('START', '%s', [STARTTYPE],2.0)
 
-# Define some operations
+# Recursive always gives the start type
+grammar.add_rule(STARTTYPE, 'recurse_', ['NUMBER','LIST'],1.0)
+
 grammar.add_rule('LIST', 'myRest_', ['LIST'], 1.0)
 grammar.add_rule('LIST', 'cons_', ['NUMBER', 'LIST'], 1.0)
 grammar.add_rule('LIST', '[]', None, 2.)
 grammar.add_rule('LIST', 'x',None, 2.)
 
 grammar.add_rule('NUMBER', 'myFirst_', ['LIST'], 1.0)
-grammar.add_rule('NUMBER', 'recurse_', ['NUMBER','LIST'],1.0)
 grammar.add_rule('NUMBER', '(%s + 1)', ['NUMBER'],0.5)
 grammar.add_rule('NUMBER', '(%s - 1)', ['NUMBER'],0.5)
 grammar.add_rule('NUMBER', '0', None,1.5)
@@ -65,14 +69,20 @@ class MyHypothesis(RecursiveLOTHypothesis):
 
     def compute_single_likelihood(self, datum):
         try:
+            prediction = self(*datum.input)
             # print 'program: ', str(self)
             # print 'input: ', datum.input
             # print 'our output: ', datum.output
             # print 'their output: ', self(*datum.input)
-            if str(self(*datum.input)) == str(datum.output):
-                return log(datum.alpha)
-            else:
-                return log(1.0-datum.alpha)
+            if STARTTYPE == 'NUMBER':
+                if str(prediction) == str(datum.output):
+                    return log(datum.alpha)
+                else:
+                    return log(1.0-datum.alpha)
+            elif STARTTYPE == 'LIST':
+#                print unlist(prediction), unlist(datum.output), editdistance.eval(unlist(prediction), unlist(datum.output))
+                distance = editdistance.eval(unlist(prediction), unlist(datum.output))
+                return float(-distance)
         except:
             return float("nan")
 
@@ -83,6 +93,9 @@ def insert(x,ys):
     if ys == []: return [x]
     if x < ys[0]: return [x] + ys
     return [ys[0]] + insert(x,ys[1:])
+def unlist(l):
+    if l == []: return l
+    return [l[0]] + unlist(l[1])
 
 lastExamples = [(list_([8]), 8),
                 (list_([2,9,1]), 1),
@@ -98,20 +111,20 @@ getExamples = [[input[0], list_(input[1:]), input[input[0]]]
                              [3,1,0,8,4],
                              [3,4,0,7,1,47]] ]
 insertExamples = [[input[0], list_(input[1:]), list_(insert(input[0],input[1:]))]
-                  for input in [[2],
-                                [1],
+                  for input in [[1],
                                 [5,1,2,3],
                                 [1,2,3],
-                                [3,4]] ]
+                                [3,4],
+                                [4,2]] ]
 data = [ FunctionData(input = e[:-1], output = e[-1], alpha = 0.95)
          for e in insertExamples ]
 print data
 
-raise Exception('test')
+
 
 h0 = MyHypothesis()
 count = Counter()
-for h in MHSampler(h0,data,steps = 100000,prior_temperature=1):
+for h in MHSampler(h0,data,steps = 100000,likelihood_temperature=0.1):
     count[h] += 1
 for h in sorted(count.keys(),key = lambda x: x.likelihood + x.prior):
     print count[h],h.likelihood,h.prior,h
