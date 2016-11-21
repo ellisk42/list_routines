@@ -26,6 +26,7 @@ adt ListExpression{
 #endif
 #ifdef SET
     Set{NumberExpression n; NumberExpression n2; ListExpression l; }
+#endif
     Empty{}
 }
 
@@ -60,12 +61,14 @@ generator NumberExpression sampleNumberExpression(int d) {
 
   if (??) return new K(v = ??);
   if (??) return new VariableNumber(i = ??);
-  if (??) return new Car(l = sampleListExpression(d - 1));
+  NumberExpression n = sampleNumberExpression(d - 1);
+  ListExpression l = sampleListExpression(d - 1);
+  if (??) return new Car(l = l);
   if (??) return new Car(l = new VariableList(i = ??));
-  if (??) return new Increment(n = sampleNumberExpression(d - 1));
-  if (??) return new Decrement(n = sampleNumberExpression(d - 1));
+  if (??) return new Increment(n = n);
+  if (??) return new Decrement(n = n);
 #ifdef GET
-  if (??) return new Get(n = sampleNumberExpression(d - 1),l = sampleListExpression(d - 1));
+  if (??) return new Get(n = n,l = l);
 #endif
   assert 0;
 }
@@ -75,15 +78,17 @@ generator ListExpression sampleListExpression(int d) {
 
   if (??) return new Empty();
   if (??) return new VariableList(i = ??);
-  if (??) return new Cdr(l = sampleListExpression(d - 1));
   if (??) return new Cdr(l = new VariableList(i = ??));
-  if (??) return new Cons(n = sampleNumberExpression(d - 1), l = sampleListExpression(d - 1));
+  ListExpression l = sampleListExpression(d - 1);
+  NumberExpression n = sampleNumberExpression(d - 1);
+  if (??) return new Cdr(l = l);
+  if (??) return new Cons(n = n, l = l);
 #ifdef INSERT
-  if (??) return new Insertion(n = sampleNumberExpression(d - 1), l = sampleListExpression(d - 1));
+  if (??) return new Insertion(n = n, l = l);
 #endif
 #ifdef SET
-    if (??) return new Set(n = sampleNumberExpression(d - 1), n2 = sampleNumberExpression(d - 1), 
-			   l = sampleListExpression(d - 1));
+    if (??) return new Set(n = n, n2 = sampleNumberExpression(d - 1), 
+			   l = l);
 #endif
   assert 0;
 }
