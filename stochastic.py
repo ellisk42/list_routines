@@ -6,6 +6,8 @@ from random import random
 from LOTlib.Hypotheses.RecursiveLOTHypothesis import RecursiveLOTHypothesis
 from LOTlib.Eval import primitive
 from LOTlib.Inference.Samplers.MetropolisHastings import MHSampler
+from LOTlib.Inference.Samplers.TabooMCMC import TabooMCMC
+from LOTlib.Inference.EnumerationInference import EnumerationInference
 from LOTlib.DataAndObjects import FunctionData
 from LOTlib.Grammar import Grammar
 from LOTlib.Hypotheses.LOTHypothesis import LOTHypothesis
@@ -82,7 +84,7 @@ class MyHypothesis(RecursiveLOTHypothesis):
             elif STARTTYPE == 'LIST':
 #                print unlist(prediction), unlist(datum.output), editdistance.eval(unlist(prediction), unlist(datum.output))
                 distance = editdistance.eval(unlist(prediction), unlist(datum.output))
-                return float(-distance)
+                return float(-distance)*5.0
         except:
             return float("nan")
 
@@ -111,7 +113,7 @@ getExamples = [[input[0], list_(input[1:]), input[input[0]]]
                              [3,1,0,8,4],
                              [3,4,0,7,1,47]] ]
 insertExamples = [[input[0], list_(input[1:]), list_(insert(input[0],input[1:]))]
-                  for input in [[1],
+                  for input in [[3],
                                 [5,1,2,3],
                                 [1,2,3],
                                 [3,4],
@@ -124,8 +126,16 @@ print data
 
 h0 = MyHypothesis()
 count = Counter()
-for h in MHSampler(h0,data,steps = 100000,likelihood_temperature=0.1):
+best = h0
+if True:
+    hypothesisStream = MHSampler(h0,data,steps = 10000000,likelihood_temperature=0.1)
+else:
+    hypothesisStream = TabooMCMC(h0,data,steps = 1000000)
+for h in hypothesisStream:
     count[h] += 1
-for h in sorted(count.keys(),key = lambda x: x.likelihood*100 + x.prior):
+    if best.likelihood*100 + best.prior < h.likelihood*100 + h.prior:
+        best = h
+        print h.likelihood,h.prior,h
+for h in sorted(count.keys(),key = lambda x: x.likelihood*100 + x.prior)[-200:]:
     print count[h],h.likelihood,h.prior,h
 

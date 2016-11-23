@@ -1,5 +1,5 @@
 include "language.skh";
-pragma options "--bnd-unroll-amnt 3 --bnd-arr1d-size 3 --bnd-arr-size 3 --bnd-inline-amnt 3";
+pragma options "--bnd-unroll-amnt 4 --bnd-arr1d-size 3 --bnd-arr-size 3 --bnd-inline-amnt 4";
 
 #define FIRSTNUMBER
 //#define SECONDNUMBER
@@ -7,6 +7,7 @@ pragma options "--bnd-unroll-amnt 3 --bnd-arr1d-size 3 --bnd-arr-size 3 --bnd-in
 Array recursive_list([int nz,int na], int [nz] numbers, Array[na] arrays, int bound) {
   int cost = 0;
   bit additionalBaseCase = ??;
+  bit additionalRecursive = ??;
 
   BooleanExpression predicate = sampleBooleanExpression(UNROLL);
   ListExpression baseCase = sampleListExpression(UNROLL);
@@ -64,26 +65,54 @@ Array recursive_list([int nz,int na], int [nz] numbers, Array[na] arrays, int bo
 int recursive_number([int nz,int na], int [nz] numbers, Array[na] arrays) {
   BooleanExpression predicate = sampleBooleanExpression(UNROLL);
   NumberExpression baseCase = sampleNumberExpression(UNROLL);
+#ifdef FIRSTNUMBER  
   NumberExpression newNumber = sampleNumberExpression(UNROLL);
+#endif
   ListExpression newList = sampleListExpression(UNROLL);
   NumberExpression returnValue = sampleNumberExpression(UNROLL);
 
-  minimize(booleanCost(predicate) +
-	   numberCost(baseCase) +
-	   numberCost(newNumber) +
-	   listCost(newList) +
-	   numberCost(returnValue));
+  int cost = booleanCost(predicate) +
+    numberCost(baseCase) +
+    numberCost(newNumber) +
+    listCost(newList) +
+    numberCost(returnValue);
+  
+  bit extraReturn = ??;
+  NumberExpression returnValue2;
+  BooleanExpression recursivePredicate;
+  if (extraReturn) {
+    returnValue2 = sampleNumberExpression(UNROLL);
+    recursivePredicate = sampleBooleanExpression(UNROLL);
+    cost += numberCost(returnValue2) + booleanCost(recursivePredicate);    
+  }
+
+  minimize(cost);
   
   if (evaluateBoolean(predicate, numbers, arrays)) {
     return evaluateNumber(baseCase, numbers, arrays);
   }
 
-  int [nz] numberArguments = {evaluateNumber(newNumber, numbers, arrays)};
+  int [nz] numberArguments = {
+#ifdef FIRSTNUMBER
+    evaluateNumber(newNumber, numbers, arrays)
+#endif
+  };
   
   int r = recursive_number(numberArguments,
 			   {evaluateList(newList, numbers, arrays)});
-  
-  return evaluateNumber(returnValue, {numbers[0], r}, arrays);
+  if (!extraReturn || evaluateBoolean(recursivePredicate, numbers, arrays)) {
+    return evaluateNumber(returnValue, {r
+#ifdef FIRSTNUMBER
+	  ,numbers[0]
+#endif
+	  }, arrays);
+  } else {
+    return evaluateNumber(returnValue2, {r
+#ifdef FIRSTNUMBER
+	  ,numbers[0]
+#endif
+	  }, arrays);
+  }
 }
 
 
@@ -95,12 +124,18 @@ void recursive_list_test_case([int l,int nz,int nt], int[nz] z, int [l] a, int[n
   assert array_equal_vector(recursive_list(z,{list(a)},l+1), t);
 }
 
-harness void learn_to_index() {
-  recursive_number_test_case({1}, {3,9,8}, 3);
-  recursive_number_test_case({2}, {1,9,8}, 9);
-  recursive_number_test_case({3}, {1,9,8}, 8);
-}
+/* harness void learn_to_index() { */
+/*   recursive_number_test_case({1}, {3,9,8}, 3); */
+/*   recursive_number_test_case({2}, {1,9,8}, 9); */
+/*   recursive_number_test_case({3}, {1,9,8}, 8); */
+/* } */
 
+harness void learn_to_count() {
+  recursive_number_test_case({}, {}, 0);
+  recursive_number_test_case({}, {9,2,9},2);
+  recursive_number_test_case({}, {9,9,9},3);
+  recursive_number_test_case({}, {8,9},1);
+}
 
 /* harness void learn_to_set() { */
 /*   recursive_list_test_case({1,4}, {3,2,8}, {4,2,8}); */

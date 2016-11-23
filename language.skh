@@ -84,8 +84,8 @@ int numberCost(NumberExpression e) {
   case VariableNumber:{return 0;}
   case Car:{return 1 + listCost(e.l);}
     //  case Length:{return 1 + listCost(e.l);}
-  case Increment:{return 1 + numberCost(e.n);}
-  case Decrement:{return 1 + numberCost(e.n);}
+  case Increment:{return numberCost(e.n) + 1;}
+  case Decrement:{return numberCost(e.n) - 1;}
   }
 }
 
