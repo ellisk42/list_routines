@@ -1,0 +1,12 @@
+pragma options "--bnd-unroll-amnt 4 --bnd-arr1d-size 4 --bnd-arr-size 4 --bnd-inline-amnt 4";
+
+#define FIRSTNUMBER
+
+#include "main.skh"
+
+harness void learn_addition() {
+  recursive_list_test_case({3},{3,1},{6,4});
+}
+
+
+harness void extra(){  recursive_list_test_case({2},{4,2,1},{6,4,3});}
